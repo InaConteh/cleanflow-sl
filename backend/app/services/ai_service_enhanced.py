@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_HEALTH_URL = "http://localhost:11434/api/tags"
 OLLAMA_TIMEOUT = 30
+VALID_CONTEXT_TYPES = {"health", "maintenance", "general"}
 
 # System prompts optimized for Sierra Leone context
 SYSTEM_PROMPTS = {
@@ -197,7 +198,7 @@ def ask_salonewaterwatch_ai(
         raise ValueError("Query too long (max 2000 characters)")
     
     context_type = context_type.lower()
-    if context_type not in SYSTEM_PROMPTS:
+    if context_type not in VALID_CONTEXT_TYPES:
         context_type = "general"
     
     language = language.lower()

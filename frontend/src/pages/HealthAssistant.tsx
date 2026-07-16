@@ -51,7 +51,10 @@ export function HealthAssistant() {
   }
 
   const handleCustomQuestion = (query: AIQuery) => {
-    stream(query)
+    stream({
+      ...query,
+      language,
+    })
   }
 
   return (
