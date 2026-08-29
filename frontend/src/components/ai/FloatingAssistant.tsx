@@ -4,7 +4,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react'
-import { useAI } from '@/services/aiService'
+import { detectLanguage, useAI } from '@/services/aiService'
 import type { AIQuery } from '@/services/aiService'
 
 interface FloatingAssistantProps {
@@ -35,6 +35,11 @@ export function FloatingAssistant({
     if (!input.trim() || loading) return
 
     const userMessage = input.trim()
+    const detectedLanguage = detectLanguage(userMessage)
+    if (detectedLanguage === 'krio') {
+      setLanguage('krio')
+    }
+
     setInput('')
     setMessages((prev) => [...prev, { role: 'user', text: userMessage }])
 
@@ -42,7 +47,7 @@ export function FloatingAssistant({
       const response = await stream({
         query: userMessage,
         category,
-        language,
+        language: detectedLanguage,
         context: initialContext,
       })
 
@@ -88,7 +93,7 @@ export function FloatingAssistant({
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 text-sm py-8">
-            <p>👋 Hello! Ask me anything about water safety, well maintenance, or health.</p>
+            <p>👋 Hello! Ask me anything about water safety, well maintenance, or health in English or Krio.</p>
           </div>
         )}
 
@@ -166,7 +171,7 @@ export function FloatingAssistant({
               handleSubmit(e as any)
             }
           }}
-          placeholder="Ask a question..."
+          placeholder="Ask in English or Krio..."
           disabled={loading}
           rows={2}
           className="w-full p-2 border border-gray-300 rounded resize-none text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"

@@ -68,6 +68,42 @@ export interface TranslationResult {
   target_language: 'en' | 'krio'
 }
 
+const KRIO_MARKERS = [
+  'una',
+  'wan',
+  'de',
+  'fo',
+  'na',
+  'wata',
+  'bodi',
+  'sik',
+  'pikin',
+  'go',
+  'dis',
+  'dat',
+  'mi',
+  'yu',
+  'how fo',
+  'wetin',
+  'mek',
+  'safe',
+  'saf',
+  'tink',
+]
+
+export function detectLanguage(query: string): 'en' | 'krio' {
+  const normalized = query.toLowerCase().trim()
+  if (!normalized) {
+    return 'en'
+  }
+
+  const score = KRIO_MARKERS.reduce((count, marker) => {
+    return count + (normalized.includes(marker) ? 1 : 0)
+  }, 0)
+
+  return score >= 2 ? 'krio' : 'en'
+}
+
 // ============================================================================
 // AI SERVICE CLIENT
 // ============================================================================

@@ -32,7 +32,9 @@ Important Rules:
 4. NEVER provide medical diagnosis (refer to health worker)
 5. End with: "Contact a health worker if symptoms persist"
 6. Be specific about quantities (e.g., "boil for 1 minute", "1 cup per 20 liters")
-7. Focus on what rural communities can actually do""",
+7. Focus on what rural communities can actually do
+8. If the user asks in Krio, reply in clear Sierra Leone Krio instead of English
+9. If the user asks in English, reply in simple English""",
 
     "health_krio": """You be di best health expert for Salone Water Watch water platform for Sierra Leone.
 Your work na for give practical, life-saving health advice about:
@@ -48,7 +50,8 @@ Important rules:
 4. Start with the main thing for do.
 5. NO give medical diagnosis (tell them for see health worker).
 6. End with: "See health worker if symptoms continue."
-7. Give clear measurements (e.g., "boil for 1 minute").""",
+7. Give clear measurements (e.g., "boil for 1 minute").
+8. If the user asks in English, still answer in clear Krio, not English.""",
 
     "maintenance_en": """You are a technical engineer helping rural communities maintain water wells and pumps in Sierra Leone.
 Provide simple, step-by-step repair guidance for:
@@ -63,7 +66,9 @@ Important Rules:
 3. Include clear safety warnings
 4. Use local language context (e.g., rubber from bicycle tires)
 5. Suggest preventive maintenance (check monthly)
-6. If repair is too complex, recommend calling a technician""",
+6. If repair is too complex, recommend calling a technician
+7. If the user asks in Krio, answer in clear Sierra Leone Krio
+8. If the user asks in English, answer in simple English""",
 
     "maintenance_krio": """You be the best technical person for help communities in Sierra Leone fix water wells and pumps.
 Give simple, step-by-step guidance in Krio for:
@@ -78,7 +83,8 @@ Important rules:
 3. Give realistic time for the work.
 4. Talk about safety and danger.
 5. Suggest checking the well every month.
-6. If the work hard too much, tell them for call technician.""",
+6. If the work hard too much, tell them for call technician.
+7. If the user asks in English, still answer in clear Krio, not English.""",
 
     "general": """You are a helpful assistant for the Salone Water Watch water security platform in Sierra Leone.
 Your role is to provide information about:
@@ -102,7 +108,8 @@ Important rules:
 1. Talk ONLY in Sierra Leonean Krio.
 2. Keep responses short and simple.
 3. Be helpful and friendly.
-4. Always talk about safety first."""
+4. Always talk about safety first.
+5. If the user asks in English, still answer in clear Krio, not English."""
 }
 
 class OllamaError(Exception):
@@ -165,6 +172,24 @@ def check_ollama_health() -> Dict[str, Any]:
             'error': str(e)
         }
 
+def _detect_language(user_query: str) -> str:
+    """Detect whether the user is likely asking in Krio or English."""
+    normalized = (user_query or '').strip().lower()
+    if not normalized:
+        return 'en'
+
+    krio_markers = [
+        'una', 'wan', 'de', 'fo', 'na', 'wata', 'bodi', 'sik', 'pikin', 'go',
+        'dis', 'dat', 'mi', 'yu', 'how fo', 'wetin', 'mek', 'saf', 'tink'
+    ]
+
+    score = sum(1 for marker in krio_markers if marker in normalized)
+    if score >= 2:
+        return 'krio'
+
+    return 'en'
+
+
 def ask_salonewaterwatch_ai(
     user_query: str,
     context_type: str = "general",
@@ -204,9 +229,12 @@ def ask_salonewaterwatch_ai(
     language = language.lower()
     if language not in ['en', 'krio']:
         language = 'en'
+
+    detected_language = _detect_language(user_query)
+    effective_language = 'krio' if language == 'krio' or detected_language == 'krio' else 'en'
     
     # Select appropriate system prompt
-    prompt_key = f"{context_type}_{language}"
+    prompt_key = f"{context_type}_{effective_language}"
     if prompt_key not in SYSTEM_PROMPTS:
         prompt_key = f"{context_type}_en"  # Fallback to English
     
@@ -232,7 +260,10 @@ def ask_salonewaterwatch_ai(
     # Build the full prompt
     full_prompt = f"""{system_prompt}
 
-User Question: {user_query}{context_str}
+User Question: {user_query}
+Detected Language: {effective_language}
+Important: If the user's question is in Krio, respond in clear Sierra Leone Krio. If the question is in English, respond in simple English. Do not mix languages.
+{context_str}
 
 Answer:"""
     

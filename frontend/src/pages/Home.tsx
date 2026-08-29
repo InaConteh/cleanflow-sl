@@ -33,8 +33,8 @@ export function Home() {
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1545062990-4a95e8e4b96d?q=80&w=2070&auto=format&fit=crop"
-            alt="Water source in Sierra Leone"
+            src="/salone-water-watch-hero.svg"
+            alt="Salone Water Watch illustration"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background"></div>
@@ -185,9 +185,9 @@ export function Home() {
       <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-primary pointer-events-none"></div>
         <div className="absolute inset-0 opacity-20 pointer-events-none">
-           <img
-            src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"
-            alt="Background pattern"
+          <img
+            src="/salone-water-watch-hero.svg"
+            alt="Salone Water Watch background pattern"
             className="w-full h-full object-cover mix-blend-overlay"
           />
         </div>

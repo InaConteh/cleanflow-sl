@@ -16,7 +16,7 @@ import {
 } from '@/components/ai'
 
 import { Button, Card } from '@/components/ui'
-import { useAI } from '@/services/aiService'
+import { detectLanguage, useAI } from '@/services/aiService'
 import type { AIQuery } from '@/services/aiService'
 import { cn } from '@/lib/utils'
 
@@ -43,17 +43,27 @@ export function HealthAssistant() {
   const { response, streaming, loading, error, stream, clearState } = useAI()
 
   const handleQuickQuestion = (q: string) => {
+    const resolvedLanguage = detectLanguage(q)
+    if (resolvedLanguage === 'krio') {
+      setLanguage('krio')
+    }
+
     stream({
       query: q,
       category: 'health',
-      language,
+      language: resolvedLanguage,
     } as AIQuery)
   }
 
   const handleCustomQuestion = (query: AIQuery) => {
+    const resolvedLanguage = detectLanguage(query.query)
+    if (resolvedLanguage === 'krio') {
+      setLanguage('krio')
+    }
+
     stream({
       ...query,
-      language,
+      language: resolvedLanguage,
     })
   }
 
